@@ -1,0 +1,42 @@
+// Make sure the charset is set appropriately
+@charset "UTF-8";
+
+// This includes all of the foundation global elements that are needed to work with any of the other files.
+@import "settings";
+
+// Foundation Components
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/global";
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/grid";
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/visibility";
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/block-grid";
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/type";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/buttons";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/forms";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/custom-forms";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/button-groups";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/dropdown-buttons";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/split-buttons";
+@import "../../node_modules/zurb-foundation-5/scss/foundation/components/flex-video";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/section";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/top-bar";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/orbit";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/reveal";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/joyride";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/clearing";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/alert-boxes";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/breadcrumbs";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/keystrokes";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/labels";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/inline-lists";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/pagination";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/panels";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/pricing-tables";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/progress-bars";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/side-nav";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/sub-nav";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/switch";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/magellan";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/tables";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/thumbs";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/tooltips";
+//@import "../../node_modules/zurb-foundation-5/scss/foundation/components/dropdown";
