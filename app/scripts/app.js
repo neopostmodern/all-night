@@ -1,5 +1,6 @@
 //import 'babel/polyfill';
 import React from 'react/addons';
+import SoundCloudAudio from 'soundcloud-audio';
 import classNames from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -184,8 +185,7 @@ class App extends React.Component {
       redirect_uri: "http://localhost:9000/callback.html"
     });
 
-
-    // todo: fetch grid from server etc.
+    this.Player = new SoundCloudAudio('59c61d3d6e2555d2b2c7235c1c0c344c');
   }
 
   _requestLogin() {
@@ -227,23 +227,31 @@ class App extends React.Component {
   }
 
   play(trackId) {
-    window.y = SC.stream("/tracks/" + trackId, (sound) => {
-      sound.play({
-        onbufferchange: (event) => { console.dir(event); },
-        ontimedcomments: (event) => { console.dir(event); }
-      }); // todo: onfinish to kick of next track
-
-      window.x = sound;
-      this.setState({
-        sound: sound,
-        playingSongId: trackId
-      });
+    this.Player.play({
+      streamUrl: "https://api.soundcloud.com/tracks/" + trackId + "/stream"
     });
-    //SC. this.forceUpdate()
+    this.setState({
+      playingSongId: trackId
+    });
+
+    this.Player.on('ended', function () {
+      console.log("Track ended.");
+      // todo: onfinish to kick of next track
+    });
+
+    this.Player.on('play', this.forceUpdate.bind(this, null));
+    this.Player.on('pause', this.forceUpdate.bind(this, null));
+    this.Player.on('waiting', this.forceUpdate.bind(this, null));
+    this.Player.on('suspend', this.forceUpdate.bind(this, null));
+    this.Player.on('stalled', this.forceUpdate.bind(this, null));
   }
 
   pause() {
-    this.state.sound.pause();
+    this.Player.audio.pause();
+  }
+
+  resume() {
+    this.Player.audio.play();
   }
 
   render() {
@@ -291,18 +299,14 @@ class App extends React.Component {
 
         let leadingField;
         if (isTrackPlaying) {
-          switch (this.state.sound.getState()) {
-            case 'paused':
-              leadingField = <div className="action" onClick={this.resume.bind(this)}>play</div>;
-              break;
-            case 'playing':
+          if (this.Player.audio.paused) {
+            leadingField = <div className="action" onClick={this.resume.bind(this)}>play</div>;
+          } else {
+            if (false) { // todo: distinguish buffering/stuck and playing
+              leadingField = <div className="action">... ({this.Player.audio.readyState})</div>;
+            } else {
               leadingField = <div className="action" onClick={this.pause.bind(this)}>pause</div>;
-              break;
-            case 'loading':
-              leadingField = <div className="action">...</div>;
-              break;
-            default:
-              console.warn("Unkown state for sound: " + this.state.sound.getState());
+            }
           }
         } else {
           leadingField = <div className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>;
