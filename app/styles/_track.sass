@@ -1,17 +1,37 @@
 
 .track
   display: flex
-  align-content: center
+  align-items: center
+
+  margin-bottom: 0.2rem
+
+  position: relative
+  right: 0.3rem
+  padding: 0 0.3rem
+  width: calc(100% + 0.6rem)
+
+  *
+    user-select: none
+
+  &:hover
+    background-color: #eee
+
+  &.active
+    border: 1px solid black
 
   &:last-of-type
     margin-bottom: 1rem
 
-  .date
+  .date, .action
     width: 3.6em
+    margin-right: 1rem
+
+  .action
+    text-align: right
+
+  .date
     text-align: right
     color: gray
-
-    margin-right: 1rem
 
   .title
     margin-right: 2rem
@@ -27,6 +47,9 @@
     .podcast
       float: right
 
+      padding: 0 0.4em
+      background-color: gray
+
   .duration
     width: 5em
     text-align: right
@@ -38,8 +61,6 @@
     .bar
       background-color: gray
       height: 2px
-
-      margin-top: 0.8rem
 
   .artist
     margin-left: auto

@@ -6,6 +6,25 @@ import moment from 'moment';
 import "moment-duration-format";
 
 const MS_20MIN = 20 * 60 * 1000;
+// all .lighten-3 from http://materializecss.com/color.html
+const COLORS = [
+  '#ef9a9a',
+  '#b39ddb',
+  '#ffcc80',
+  '#c5e1a5',
+  '#90caf9',
+  '#fff59d',
+  '#80deea',
+  '#f48fb1',
+  '#a5d6a7',
+  '#9fa8da',
+  '#e6ee9c',
+  '#81d4fa',
+  '#ffe082',
+  '#80cbc4',
+  '#ce93d8',
+  '#ffab91'
+];
 
 const Utilities = {
   CropString: function (string, maximumLength) {
@@ -37,45 +56,105 @@ const Utilities = {
     return string;
   },
 
-  AnalyseTrackTitle: function (track, maxLength) {
+  AnalyseTrackTitle: function (track) {
     let title = track.title;
     let analysis = {};
 
+    if (title.includes('Montagssorbet')) {
+      let number = parseInt(title.match(/#\d+/gi)[0].substring(1));
+      title = title.replace(/Montagssorbet mit Laut & Luise - #\d+:/, "");
+
+      analysis.podcast = {
+        name: "Montagssorbet",
+        number: number
+      };
+    } else if (title.includes('Das Haett Es Frueher Nicht Gegeben')) {
+      let number = parseInt(title.match(/#\d+/i)[0].substring(1));
+      title = title.replace(/Das Haett Es Frueher Nicht Gegeben #\d+/, "");
+      analysis.podcast = {
+        name: "'Das Haett Es Fruher Nicht Gegeben' Podcast",
+        number: number
+      };
+    } else if (title.includes('Seasidetrip')) {
+      let number = parseInt(title.match(/Seasidetrip \d+/i)[0].substring(12));
+      title = title.replace(/Seasidetrip \d+ by/i, "");
+      analysis.podcast = {
+        name: 'Seasidetrip',
+        number: number
+      };
+    } else if (title.includes('Jakarta Radio')) {
+      let number = parseInt(title.match(/Jakarta Radio \d+/i)[0].substring(14));
+      title = title.replace(/Jakarta Radio \d+:/i, "");
+      analysis.podcast = {
+        name: 'Jakarta Radio',
+        number: number
+      };
+    } else if (title.includes('Radio Juicy Vol')) {
+      let number = parseInt(title.match(/Radio Juicy Vol\. \d+/i)[0].substring(17));
+      title = title.replace(/Radio Juicy Vol\. \d+/i, "");
+      analysis.podcast = {
+        name: 'Radio Juicy',
+        number: number
+      };
+    }
+
     title = title.replace(/free ((download)|(dl))/gi, '');
     title = title.replace(/download/gi, '');
+    title = title.replace(/tracklist( available)?/gi, '');
 
-    // remove the artist name
-    title = title.replace(new RegExp(track.user.username.replace(/\*/gi, ''), 'gi'), '');
+    // remove the artist name, with some creativity
+    let artist_name_regex = track.user.username
+      .replace(/\*/gi, '')
+      .replace(/[\s_-]/g, '[\\s_-]?');
 
-    //// strip artist name in front
-    //if (title.toLowerCase().startsWith(track.user.username.toLowerCase())) {
-    //  title = title.substring(track.user.username.length)
-    //}
+    title = title.replace(new RegExp(artist_name_regex, 'gi'), '');
 
     // strip leading symbols caused by above reduction
     title = Utilities.Trim(title, ['-', ':'], 1);
 
-    let originalLength = title.length;
-
     // anything after '@' should be the location (without the @ itself)
     if (title.includes('@')) {
       let atIndex = title.indexOf('@');
-      analysis.location = title.substring(atIndex + 1, title.length);
+      let location = title.substring(atIndex + 1, title.length);
+      location = Utilities.Trim(location, ['-', ':']);
+      analysis.location = location;
 
       title = title.substring(0, atIndex);
     }
 
-    let podcast = title.match(/(-\s*)?[^\s]+cast\s?#?\d+(\s*-)?/gi);
+    let podcast = title.match(/(-\s*)?[^-]+cast\s?#?\d+(\s*(-|(by)))?/gi);
     if (podcast) {
       podcast = podcast[0];
       title = title.replace(podcast, '');
 
-      podcast = Utilities.Trim(podcast, ['-', ':']);
-      analysis.podcast = podcast;
+      let name = podcast.match(/[^-]+cast/gi)[0].trim();
+      if (name.toLowerCase() == 'podcast') {
+        name = track.user.username + " Podcast";
+      }
+
+      let number = parseInt(podcast.match(/#?\d+/)[0].replace('#', ''));
+
+      analysis.podcast = {
+        name: name,
+        number: number
+      };
     }
 
-    // strip leading symbols caused by above reduction
-    title = Utilities.Trim(title, ['-', ':']);
+    // remove empty brackets, braces etc.
+    title = title.replace(/[(\(\))|(\[\])]/g, '');
+    // strip leading symbols caused by above reductions
+    title = Utilities.Trim(title, ['-', ':', '|']);
+
+    // if only the word 'live' remains, remove
+    if (title.toLowerCase() === 'live' || title.toLowerCase() === 'liveset') {
+      title = '';
+    }
+
+    if (analysis.location) {
+      analysis.location = Utilities.CropString(analysis.location, title.length > 30 ? 20 : 40);
+    }
+
+    title = Utilities.CropString(title, analysis.location ? 60 - analysis.location.length : 60);
 
     analysis.name = title.length > 0 ? title : <span className="untitled">&lt;untitled&gt;</span>;
 
@@ -92,6 +171,10 @@ class App extends React.Component {
       tracks: [],
       nextTracksUrl: '/me/activities',
       playing: null
+    };
+
+    this.podcastColorMap = {
+      _length: 0
     };
   }
 
@@ -144,19 +227,36 @@ class App extends React.Component {
   }
 
   play(trackId) {
-    SC.stream("/tracks/" + trackId, (sound) => {
-      sound.play(); // todo: onfinish to kick of next track
+    window.y = SC.stream("/tracks/" + trackId, (sound) => {
+      sound.play({
+        onbufferchange: (event) => { console.dir(event); },
+        ontimedcomments: (event) => { console.dir(event); }
+      }); // todo: onfinish to kick of next track
+
       window.x = sound;
       this.setState({
         sound: sound,
         playingSongId: trackId
       });
     });
+    //SC. this.forceUpdate()
+  }
+
+  pause() {
+    this.state.sound.pause();
   }
 
   render() {
-    const MAX_TITLE_LENGTH = 63;
     const MAX_ARTIST_LENGTH = 22;
+
+    let getColorForPodcast = ((podcastName) => {
+      if (! this.podcastColorMap[podcastName]) {
+        this.podcastColorMap[podcastName] = COLORS[this.podcastColorMap._length % COLORS.length];
+        this.podcastColorMap._length += 1;
+      }
+
+      return this.podcastColorMap[podcastName];
+    }).bind(this);
 
     let content;
 
@@ -165,24 +265,56 @@ class App extends React.Component {
 
 
       content = this.state.tracks.map((track) => {
+        let isTrackPlaying = track.id === this.state.playingSongId;
+
         let duration = moment.duration(track.duration);
         let length = duration.asHours() > 0 ? duration.format('H:mm:ss') : duration.format('m:ss');
 
         let date = moment(track.created_at.substr(0, 10), "YYYY/MM/DD");
 
-        let title = Utilities.AnalyseTrackTitle(track, MAX_TITLE_LENGTH);
+        let title = Utilities.AnalyseTrackTitle(track);
+        let title_decorators = [];
+        if (title.location) {
+          title_decorators.push(<span className="location">{title.location}</span>);
+        }
+        if (title.podcast) {
+          title_decorators.push(
+            <span className="podcast"
+                  title={title.podcast.name}
+                  style={{backgroundColor: getColorForPodcast(title.podcast.name)}}>
+              #{title.podcast.number}
+            </span>
+          );
+        }
 
         let artist = Utilities.CropString(track.user.username, MAX_ARTIST_LENGTH);
 
+        let leadingField;
+        if (isTrackPlaying) {
+          switch (this.state.sound.getState()) {
+            case 'paused':
+              leadingField = <div className="action" onClick={this.resume.bind(this)}>play</div>;
+              break;
+            case 'playing':
+              leadingField = <div className="action" onClick={this.pause.bind(this)}>pause</div>;
+              break;
+            case 'loading':
+              leadingField = <div className="action">...</div>;
+              break;
+            default:
+              console.warn("Unkown state for sound: " + this.state.sound.getState());
+          }
+        } else {
+          leadingField = <div className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>;
+        }
 
-        return <div className="track" key={track.id} onClick={this.play.bind(this, track.id)}>
-          <div className="date" title={date.format('YYYY-MM-DD')}>
-            {date.format('D-MMM')}
-          </div>
+        let classes = classNames("track", { 'active': isTrackPlaying });
+
+        return <div className={classes} key={track.id} onDoubleClick={this.play.bind(this, track.id)}>
+          {leadingField}
           <div className="title" title={track.title}>
             {title.name}
-            <span className="location">{title.location}</span>
-            <span className="podcast">{title.podcast}</span>
+            {title_decorators}
           </div>
           <div className="artist">
             <a href={track.user.permalink_url} target="_blank" title={artist + "'s profile on SoundCloud"}>
