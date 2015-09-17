@@ -88,7 +88,7 @@ $row-width: 100%;
 
 // We use these to define default font stacks
 // $font-family-sans-serif: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-$font-family-serif: GentiumAlt, serif;
+$font-family-serif: 'Gentium Basic', serif;
 $font-family-monospace: 'Courier New', Courier, monospace;
 
 // We use these to define default font weights
@@ -195,7 +195,7 @@ $body-font-family: $font-family-monospace;
 // $include-html-type-classes: $include-html-classes;
 
 // We use these to control header font styles
-$header-font-family: $font-family-serif, serif;
+$header-font-family: $font-family-serif;
 // $header-font-weight: $font-weight-normal;
 // $header-font-style: normal;
 // $header-font-color: $jet;

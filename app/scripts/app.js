@@ -309,7 +309,10 @@ class App extends React.Component {
             }
           }
         } else {
-          leadingField = <div className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>;
+          leadingField = [
+            <div className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>,
+            <div className="action" onClick={this.play.bind(this, track.id)}>play</div>
+          ];
         }
 
         let classes = classNames("track", { 'active': isTrackPlaying });
