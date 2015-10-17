@@ -179,7 +179,7 @@ class App extends React.Component {
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     SC.initialize({
       client_id: "59c61d3d6e2555d2b2c7235c1c0c344c",
       redirect_uri: "http://localhost:9000/callback.html"
