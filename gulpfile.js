@@ -8,6 +8,7 @@ var browserify = require('browserify');
 var watchify   = require('watchify');
 var source     = require('vinyl-source-stream');
 var path       = require('path');
+var favicons   = require('gulp-favicons');
 
 require('harmonize')();
 
@@ -55,6 +56,10 @@ gulp.task('scripts', function() {
 gulp.task('html', function() {
   var assets = $.useref.assets();
   return gulp.src('app/*.html')
+    .pipe(favicons({
+      files: { dest: 'images/' },
+      settings: { background: '#000000' }
+    }))
     .pipe(assets)
     .pipe(assets.restore())
     .pipe($.useref())
