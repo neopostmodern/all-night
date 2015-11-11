@@ -9,6 +9,7 @@ var watchify   = require('watchify');
 var source     = require('vinyl-source-stream');
 var path       = require('path');
 var favicons   = require('gulp-favicons');
+var replace    = require('gulp-replace');
 
 require('harmonize')();
 
@@ -70,7 +71,7 @@ gulp.task('favicon', function () {
     developerName: "neo post modern",
     developerURL: "neopostmodern.com",
     background: "#000000",
-    path: "favicons/",
+    path: "/",
     display: "standalone",
     orientation: "portrait",
     version: '1.1.1',
@@ -133,6 +134,17 @@ gulp.task('set-production', function() {
   process.env.NODE_ENV = 'production';
 });
 
+gulp.task('production-tokens', function () {
+  gulp.src('dist/scripts/app.js', { base : './' })
+    .pipe(replace(
+      '59c61d3d6e2555d2b2c7235c1c0c344c',
+      '8f03ab13073a4d1b6c6a98a2f00f7c88')) // client id
+    .pipe(replace(
+      'http://localhost:9000/callback.html',
+      'http://allnight.neopostmodern.com/callback.html')) // callback url
+    .pipe(gulp.dest('./'));
+});
+
 gulp.task('minify:js', function() {
   return gulp.src('dist/scripts/**/*.js')
     .pipe($.uglify())
@@ -157,7 +169,7 @@ gulp.task('clean-bundle', sync(['clean', 'bundle']));
 
 gulp.task('build', ['clean-bundle'], bundler.stop.bind(bundler));
 
-gulp.task('build:production', sync(['set-production', 'build', 'minify']));
+gulp.task('build:production', sync(['set-production', 'build', 'minify', 'production-tokens']));
 
 gulp.task('serve:production', sync(['build:production', 'serve']));
 
