@@ -56,15 +56,28 @@ gulp.task('scripts', function() {
 gulp.task('html', function() {
   var assets = $.useref.assets();
   return gulp.src('app/*.html')
-    .pipe(favicons({
-      files: { dest: 'images/' },
-      settings: { background: '#000000' }
-    }))
     .pipe(assets)
     .pipe(assets.restore())
     .pipe($.useref())
     .pipe(gulp.dest('dist'))
     .pipe($.size());
+});
+
+gulp.task('favicon', function () {
+  gulp.src("app/images/icons/favicon.png").pipe(favicons({
+    appName: "All Night",
+    appDescription: "Serving the live sets and mixes that keep you going all night - for whatever you do.",
+    developerName: "neo post modern",
+    developerURL: "neopostmodern.com",
+    background: "#000000",
+    path: "favicons/",
+    display: "standalone",
+    orientation: "portrait",
+    version: '1.1.1',
+    logging: false,
+    online: false,
+    html: "../../dist/index.html"
+  })).pipe(gulp.dest("dist/"));
 });
 
 gulp.task('images', function() {
@@ -138,7 +151,7 @@ gulp.task('minify', ['minify:js', 'minify:css']);
 
 gulp.task('clean', del.bind(null, 'dist'));
 
-gulp.task('bundle', ['html', 'styles', 'scripts', 'images', 'fonts', 'extras']);
+gulp.task('bundle', ['html', 'styles', 'scripts', 'images', 'fonts', 'extras', 'favicon']);
 
 gulp.task('clean-bundle', sync(['clean', 'bundle']));
 
