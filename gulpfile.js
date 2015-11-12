@@ -8,10 +8,14 @@ var browserify = require('browserify');
 var watchify   = require('watchify');
 var source     = require('vinyl-source-stream');
 var path       = require('path');
-var favicons   = require('gulp-favicons');
+var favicon    = require ('gulp-real-favicon');
+var fs         = require('fs');
 var replace    = require('gulp-replace');
 
 require('harmonize')();
+
+// File where the favicon markups are stored
+var FAVICON_DATA_FILE = 'faviconData.json';
 
 var bundler = {
   w: null,
@@ -57,6 +61,7 @@ gulp.task('scripts', function() {
 gulp.task('html', function() {
   var assets = $.useref.assets();
   return gulp.src('app/*.html')
+    .pipe(favicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON_DATA_FILE)).favicon.html_code))
     .pipe(assets)
     .pipe(assets.restore())
     .pipe($.useref())
@@ -64,21 +69,67 @@ gulp.task('html', function() {
     .pipe($.size());
 });
 
-gulp.task('favicon', function () {
-  gulp.src("app/images/icons/favicon.png").pipe(favicons({
-    appName: "All Night",
-    appDescription: "Serving the live sets and mixes that keep you going all night - for whatever you do.",
-    developerName: "neo post modern",
-    developerURL: "neopostmodern.com",
-    background: "#000000",
-    path: "/",
-    display: "standalone",
-    orientation: "portrait",
-    version: '1.1.1',
-    logging: false,
-    online: false,
-    html: "../../dist/index.html"
-  })).pipe(gulp.dest("dist/"));
+// Generate the icons. This task takes a few seconds to complete.
+// You should run it at least once to create the icons. Then,
+// you should run it whenever RealFaviconGenerator updates its
+// package (see the check-for-favicon-update task below).
+gulp.task('generate-favicon', function(done) {
+  favicon.generateFavicon({
+    masterPicture: 'app/images/icons/favicon.png',
+    dest: 'dist/',
+    iconsPath: '/',
+    design: {
+      ios: {
+        pictureAspect: 'backgroundAndMargin',
+        backgroundColor: '#000000',
+        margin: '25%',
+        appName: 'All Night'
+      },
+      desktopBrowser: {},
+      windows: {
+        pictureAspect: 'noChange',
+        backgroundColor: '#000000',
+        onConflict: 'override',
+        appName: 'All Night'
+      },
+      androidChrome: {
+        pictureAspect: 'noChange',
+        themeColor: '#ffffff',
+        manifest: {
+          name: 'All Night',
+          display: 'browser',
+          orientation: 'notSet',
+          onConflict: 'override'
+        }
+      },
+      safariPinnedTab: {
+        pictureAspect: 'blackAndWhite',
+        threshold: 50,
+        themeColor: '#000000'
+      }
+    },
+    settings: {
+      compression: 5,
+      scalingAlgorithm: 'Mitchell',
+      errorOnImageTooSmall: false
+    },
+    markupFile: FAVICON_DATA_FILE
+  }, function() {
+    done();
+  });
+});
+
+// Check for updates on RealFaviconGenerator (think: Apple has just
+// released a new Touch icon along with the latest version of iOS).
+// Run this task from time to time. Ideally, make it part of your
+// continuous integration system.
+gulp.task('check-for-favicon-update', function(done) {
+  var currentVersion = JSON.parse(fs.readFileSync(FAVICON_DATA_FILE)).version;
+  favicon.checkForUpdates(currentVersion, function(err) {
+    if (err) {
+      throw err;
+    }
+  });
 });
 
 gulp.task('images', function() {
@@ -163,7 +214,7 @@ gulp.task('minify', ['minify:js', 'minify:css']);
 
 gulp.task('clean', del.bind(null, 'dist'));
 
-gulp.task('bundle', ['html', 'styles', 'scripts', 'images', 'fonts', 'extras', 'favicon']);
+gulp.task('bundle', ['html', 'styles', 'scripts', 'images', 'fonts', 'extras', 'generate-favicon']);
 
 gulp.task('clean-bundle', sync(['clean', 'bundle']));
 
