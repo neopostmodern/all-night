@@ -193,14 +193,12 @@ class App extends React.Component {
     this.Player = new SoundCloudAudio('59c61d3d6e2555d2b2c7235c1c0c344c');
 
     window.onkeydown = (event) => {
-      event.preventDefault();
-
-      if (event.code === "Space") {
-        this.togglePlay();
-        return;
-      }
+      let keyCaught = true;
 
       switch (event.code) {
+        case "Space":
+          this.togglePlay();
+          break;
         case "ArrowRight":
           if (event.shiftKey) {
             this.jumpRelative(moment.duration({ minutes: 5 }));
@@ -220,6 +218,13 @@ class App extends React.Component {
             this.playPrevious();
           }
           break;
+
+        default:
+          keyCaught = false;
+      }
+
+      if (keyCaught) {
+        event.preventDefault();
       }
     };
   }
