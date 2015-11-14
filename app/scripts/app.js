@@ -177,6 +177,8 @@ class App extends React.Component {
     this.podcastColorMap = {
       _length: 0
     };
+
+    this._trackIds = [];
   }
 
   // hint: tokens and redirect will be replaced automatically with production version by gulp
@@ -240,27 +242,33 @@ class App extends React.Component {
 
     return new Promise((resolve, reject) => {
       SC.get(this.state.nextTracksUrl, {limit: 50}, (activities) => {
-          let tracks = this.state.tracks.concat(
-            activities.collection
-              .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
-              .map((activity) => activity.origin)
-              .filter((track) => track.duration > MS_20MIN)
-          );
+        let tracks = this.state.tracks.concat(
+          activities.collection
+            .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
+            .map((activity) => activity.origin)
+            .filter((track) => track.duration > MS_20MIN)
+            .filter((track) => { // skip duplicate tracks
+              if (this._trackIds.indexOf(track.id) === -1) {
+                this._trackIds.push(track.id);
+                return true;
+              } else {
+                return false;
+              }
+            })
+        );
 
-          this.setState({
-            isFetchingSongs: false,
-            nextTracksUrl: activities.next_href,
-            tracks: tracks
-          });
+        this.setState({
+          isFetchingSongs: false,
+          nextTracksUrl: activities.next_href,
+          tracks: tracks
+        });
 
-          if (this.state.tracks.length < 20) {
-            this.fetchSongs().then(() => resolve());
-          } else {
-            resolve();
-          }
+        if (this.state.tracks.length < 20) {
+          this.fetchSongs().then(() => resolve());
+        } else {
+          resolve();
         }
-      );
-
+      });
     });
   }
 
@@ -377,9 +385,6 @@ class App extends React.Component {
     let content;
 
     if (this.state.user) {
-      // console.dir(this.state.tracks[0]);
-
-
       content = this.state.tracks.map((track) => {
         let isTrackPlaying = track.id === this.state.playingSongId;
 
