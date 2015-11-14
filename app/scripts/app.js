@@ -179,6 +179,7 @@ class App extends React.Component {
     };
   }
 
+  // hint: tokens and redirect will be replaced automatically with production version by gulp
   componentWillMount() {
     SC.initialize({
       client_id: "59c61d3d6e2555d2b2c7235c1c0c344c",
@@ -244,6 +245,7 @@ class App extends React.Component {
     this.Player.on('waiting', this.forceUpdate.bind(this, null));
     this.Player.on('suspend', this.forceUpdate.bind(this, null));
     this.Player.on('stalled', this.forceUpdate.bind(this, null));
+    this.Player.audio.addEventListener("timeupdate", this.forceUpdate.bind(this, null));
   }
 
   pause() {
@@ -256,6 +258,13 @@ class App extends React.Component {
 
   render() {
     const MAX_ARTIST_LENGTH = 22;
+    let formatDuration = (duration) => {
+      if (duration.hours() > 0) {
+        return duration.format('H:mm:ss');
+      } else {
+        return duration.format('m:ss', {trim: false});
+      }
+    };
 
     let getColorForPodcast = ((podcastName) => {
       if (! this.podcastColorMap[podcastName]) {
@@ -276,7 +285,7 @@ class App extends React.Component {
         let isTrackPlaying = track.id === this.state.playingSongId;
 
         let duration = moment.duration(track.duration);
-        let length = duration.asHours() > 0 ? duration.format('H:mm:ss') : duration.format('m:ss');
+        let length = formatDuration(duration);
 
         let date = moment(track.created_at.substr(0, 10), "YYYY/MM/DD");
 
@@ -317,6 +326,16 @@ class App extends React.Component {
 
         let classes = classNames("track", { 'active': isTrackPlaying });
 
+        let popularityOrProgress = <div className="popularity" title={track.playback_count + " plays"}>
+          <div className="bar" style={{width: Math.max(Math.log10(track.playback_count) - 2, 0) + 'rem'}}></div>
+        </div>;
+        if (isTrackPlaying) {
+          let formattedProgress = formatDuration(moment.duration(this.Player.audio.currentTime * 1000));
+          popularityOrProgress = <div className="progress">
+            {formattedProgress} /
+          </div>;
+        }
+
         return <div className={classes} key={track.id} onDoubleClick={this.play.bind(this, track.id)}>
           {leadingField}
           <div className="title" title={track.title}>
@@ -328,9 +347,7 @@ class App extends React.Component {
               {artist}
             </a>
           </div>
-          <div className="popularity" title={track.playback_count + " plays"}>
-            <div className="bar" style={{width: Math.max(Math.log10(track.playback_count) - 2, 0) + 'rem'}}></div>
-          </div>
+          {popularityOrProgress}
           <div className="duration">{length}</div>
           <div className="origin">
             <a href={track.permalink_url} target="_blank" title="Go to track on SoundCloud">
