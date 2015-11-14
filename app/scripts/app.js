@@ -391,11 +391,12 @@ class App extends React.Component {
         let title = Utilities.AnalyseTrackTitle(track);
         let title_decorators = [];
         if (title.location) {
-          title_decorators.push(<span className="location">{title.location}</span>);
+          title_decorators.push(<span className="location" key={track.id + '-loc'}>{title.location}</span>);
         }
         if (title.podcast) {
           title_decorators.push(
             <span className="podcast"
+                  key={track.id + '-pod'}
                   title={title.podcast.name}
                   style={{backgroundColor: getColorForPodcast(title.podcast.name)}}>
               #{title.podcast.number}
@@ -418,8 +419,8 @@ class App extends React.Component {
           }
         } else {
           leadingField = [
-            <div className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>,
-            <div className="action" onClick={this.play.bind(this, track.id)}>play</div>
+            <div key={track.id + '-date'} className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>,
+            <div key={track.id + '-action'}className="action" onClick={this.play.bind(this, track.id)}>play</div>
           ];
         }
 
