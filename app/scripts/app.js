@@ -187,6 +187,37 @@ class App extends React.Component {
     });
 
     this.Player = new SoundCloudAudio('59c61d3d6e2555d2b2c7235c1c0c344c');
+
+    window.onkeydown = (event) => {
+      event.preventDefault();
+
+      if (event.code === "Space") {
+        this.togglePlay();
+        return;
+      }
+
+      switch (event.code) {
+        case "ArrowRight":
+          if (event.shiftKey) {
+            this.jumpRelative(moment.duration({ minutes: 5 }));
+          } else if (event.altKey) {
+            this.jumpRelative(moment.duration({ minutes: 1 }));
+          } else if (event.ctrlKey) {
+            this.playNext();
+          }
+          break;
+
+        case "ArrowLeft":
+          if (event.shiftKey) {
+            this.jumpRelative(moment.duration({ minutes: -5 }));
+          } else if (event.altKey) {
+            this.jumpRelative(moment.duration({ minutes: -1 }));
+          } else if (event.ctrlKey) {
+            this.playPrevious();
+          }
+          break;
+      }
+    };
   }
 
   _requestLogin() {
@@ -206,25 +237,31 @@ class App extends React.Component {
 
   fetchSongs() {
     this.setState({ isFetchingSongs: true });
-    SC.get(this.state.nextTracksUrl, {limit: 50}, (activities) => {
-        let tracks = this.state.tracks.concat(
-          activities.collection
-            .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
-            .map((activity) => activity.origin)
-            .filter((track) => track.duration > MS_20MIN)
-        );
 
-        this.setState({
-          isFetchingSongs: false,
-          nextTracksUrl: activities.next_href,
-          tracks: tracks
-        });
+    return new Promise((resolve, reject) => {
+      SC.get(this.state.nextTracksUrl, {limit: 50}, (activities) => {
+          let tracks = this.state.tracks.concat(
+            activities.collection
+              .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
+              .map((activity) => activity.origin)
+              .filter((track) => track.duration > MS_20MIN)
+          );
 
-        if (this.state.tracks.length < 20) {
-          this.fetchSongs();
+          this.setState({
+            isFetchingSongs: false,
+            nextTracksUrl: activities.next_href,
+            tracks: tracks
+          });
+
+          if (this.state.tracks.length < 20) {
+            this.fetchSongs().then(() => resolve());
+          } else {
+            resolve();
+          }
         }
-      }
-    );
+      );
+
+    });
   }
 
   play(trackId) {
@@ -236,8 +273,7 @@ class App extends React.Component {
     });
 
     this.Player.on('ended', function () {
-      console.log("Track ended.");
-      // todo: onfinish to kick of next track
+      this.playNext();
     });
 
     this.Player.on('play', this.forceUpdate.bind(this, null));
@@ -254,6 +290,69 @@ class App extends React.Component {
 
   resume() {
     this.Player.audio.play();
+  }
+
+  togglePlay() {
+    if (this.state.playingSongId) {
+      if (this.Player.audio.paused) {
+        this.resume();
+      } else {
+        this.pause();
+      }
+    } else {
+      if (this.state.tracks && this.state.tracks.length) {
+        this.play(this.state.tracks[0].id);
+      }
+    }
+  }
+
+  _getCurrentTrackIndex() {
+    return this.state.tracks.findIndex((track) => track.id === this.state.playingSongId);
+  }
+
+  playNext() {
+    let currentTrackIndex = this._getCurrentTrackIndex();
+
+    if (currentTrackIndex < this.state.tracks.length - 1) {
+      this.play(this.state.tracks[currentTrackIndex + 1].id);
+    } else {
+      this.fetchSongs().then(() => this.playNext());
+    }
+  }
+
+  playPrevious() {
+    let currentTrackIndex = this._getCurrentTrackIndex();
+
+    if (currentTrackIndex > 0) {
+      this.play(this.state.tracks[currentTrackIndex - 1].id);
+    }
+  }
+
+  playPreviousOrRestart() {
+    if (this.state.playingSongId) {
+      if (this.Player.audio.currentTime > 5) {
+        this.playPrevious();
+      } else {
+        this.restartTrack();
+      }
+    }
+  }
+
+  restartTrack() {
+    this.Player.audio.currentTime = 0;
+  }
+
+  /**
+   * Jump within track by a given amount relative to current position.
+   * @param {moment.duration} difference The amount of time
+   */
+  jumpRelative(difference) {
+    if (!moment.isDuration(difference)) {
+      console.error("App.jumpRelative called with non-duration argument: ", difference);
+      return;
+    }
+
+    this.Player.audio.currentTime += difference.asSeconds();
   }
 
   render() {
