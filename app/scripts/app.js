@@ -6,6 +6,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import "moment-duration-format";
 
+import ProCommands from './components/pro-commands';
+
 const MS_20MIN = 20 * 60 * 1000;
 // all .lighten-3 from http://materializecss.com/color.html
 const COLORS = [
@@ -385,7 +387,20 @@ class App extends React.Component {
     let content;
 
     if (this.state.user) {
-      content = this.state.tracks.map((track) => {
+      content = [];
+
+      content.push(
+        <button id="show-pro-tips"
+                key="show-pro-tips"
+                onClick={() => this.setState({showProCommands: !this.state.showProCommands})}>
+          {this.state.showProCommands ? 'hide' : 'show' } pro cmds
+        </button>
+      );
+      if (this.state.showProCommands) {
+        content.push(<ProCommands />);
+      }
+
+      content = content.concat(this.state.tracks.map((track) => {
         let isTrackPlaying = track.id === this.state.playingSongId;
 
         let duration = moment.duration(track.duration);
@@ -460,7 +475,8 @@ class App extends React.Component {
             </a>
           </div>
         </div>
-      });
+      }));
+
       if (this.state.isFetchingSongs) {
         content.push(<div key="loading">Loading...</div>);
       } else {
@@ -474,7 +490,9 @@ class App extends React.Component {
       </div>;
     }
 
-    return <div>{content}</div>;
+    return <div style={{position: 'relative'}}>
+      {content}
+    </div>;
   }
 }
 
