@@ -287,9 +287,7 @@ class App extends React.Component {
       playingSongId: trackId
     });
 
-    this.Player.on('ended', function () {
-      this.playNext();
-    });
+    this.Player.on('ended', this.playNext.bind(this, null));
 
     this.Player.on('play', this.forceUpdate.bind(this, null));
     this.Player.on('pause', this.forceUpdate.bind(this, null));
