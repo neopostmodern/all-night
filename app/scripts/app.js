@@ -253,6 +253,7 @@ class App extends React.Component {
           activities.collection
             .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
             .map((activity) => activity.origin)
+            .filter((track) => !!track) // get rid of weird 'null' tracks (error in SC API?)
             .filter((track) => track.duration > MS_20MIN)
             .filter((track) => { // skip duplicate tracks
               if (this._trackIds.indexOf(track.id) === -1) {
