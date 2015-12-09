@@ -1,4 +1,5 @@
 import Utilities from './util'
+import VenueAnalyser from './venue-analyser'
 
 let specialPodcastTreatments = {
   'Montagssorbet': (title, analysis) => {
@@ -76,7 +77,7 @@ let specialPodcastTreatments = {
   }
 };
 
-const DATE_REGEX = /\d{1,2}\.\d{2}\.\d{2,4}/;
+const DATE_REGEX = /(\d{1,2}(\.|\/|-)\d{1,2}(\.|\/|-)\d{2,4})|(\d{4}\s?-\s?\d{2}\s?-\s?\d{2})|(\d{5}\d*)/;
 
 export default function AnalyseTrackTitle(track) {
   let title = track.title;
@@ -104,15 +105,18 @@ export default function AnalyseTrackTitle(track) {
   title = Utilities.Trim(title, ['-', ':'], 1);
 
   if (DATE_REGEX.test(title)) {
-    analysis.date = title.match(DATE_REGEX)[0];
-    title = title.replace(analysis.date, '');
+    let date = title.match(DATE_REGEX)[0];
+    title = title.replace(date, '');
+    analysis.date = date.replace(/\s/g, '');
   }
+
+  [title, analysis] = VenueAnalyser.analyse(title, analysis);
 
   // anything after '@' should be the location (without the @ itself)
   if (title.includes('@')) {
-    let atIndex = title.indexOf('@');
+    let atIndex = title.lastIndexOf('@');
     let location = title.substring(atIndex + 1, title.length);
-    location = Utilities.Trim(location, ['-', ':']);
+    location = Utilities.Trim(location, ['-', ':', ',', '/', '|']);
     analysis.location = location;
 
     title = title.substring(0, atIndex);
@@ -138,6 +142,8 @@ export default function AnalyseTrackTitle(track) {
 
   // remove empty brackets, braces etc.
   title = title.replace(/(\(\s*\))|(\[\s*\])/g, '');
+  // replace the unnecessary dash in "- (" combo
+  title = title.replace(/-\s*\(/g, '(');
   // replace double-separators by single version
   title = title.replace(/\|\s*\|/, '|');
   title = title.replace(/-\s*-/, '-');

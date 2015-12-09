@@ -8,6 +8,7 @@ import "moment-duration-format";
 
 import Utilities from './util'
 import AnalyseTrack from './track-analyser';
+import FestivalAnalyser from './venue-analyser';
 import ProCommands from './components/pro-commands';
 
 const MS_20MIN = 20 * 60 * 1000;
@@ -30,6 +31,15 @@ const COLORS = [
   '#ce93d8',
   '#ffab91'
 ];
+const FESTIVAL_ICONS = {
+  'fusion': 'images/festivals/fusion.png',
+  'kater': 'images/festivals/katerblau.png',
+  'aboutblank': 'images/festivals/aboutblank.png',
+  'feel': 'images/festivals/feel.png',
+  '3000-grad': 'images/festivals/3000.png',
+  'ploetzlich': 'images/festivals/ploetzlich.png',
+  'burning-man': 'images/festivals/burning-man.png'
+};
 
 const TRACKS_REQUEST_URL = '/me/activities';
 
@@ -289,11 +299,29 @@ class App extends React.Component {
         let date = moment(track.created_at.substr(0, 10), "YYYY/MM/DD");
 
         let title = AnalyseTrack(track);
+        let venue;
+        if (title.venue) {
+          let venue_name = FestivalAnalyser.getName(title.venue);
+          let icon = FESTIVAL_ICONS[title.venue];
+          if (icon) {
+            venue = <img className="venue" src={icon} alt={venue_name} title={venue_name} />
+          } else {
+            venue = <b className="venue">{venue_name}</b>;
+          }
+        }
+
         let title_decorators = [];
         if (title.date) {
           title_decorators.push(
             <span className="podcast title-date" key="date">
               {title.date}
+            </span>
+          );
+        }
+        if (title.live) {
+          title_decorators.push(
+            <span className="podcast live" key="live">
+              live
             </span>
           );
         }
@@ -307,13 +335,6 @@ class App extends React.Component {
                   title={title.podcast.name}
                   style={{backgroundColor: getColorForPodcast(title.podcast.name)}}>
               #{title.podcast.number}
-            </span>
-          );
-        }
-        if (title.live) {
-          title_decorators.push(
-            <span className="podcast live" key="live">
-              live
             </span>
           );
         }
@@ -351,6 +372,7 @@ class App extends React.Component {
         }
 
         return <div className={classes} key={track.id} onDoubleClick={this.play.bind(this, track.id)}>
+          {venue}
           {leadingField}
           <div className="title" title={track.title}>
             {title.name ? title.name : <span className="untitled">&lt;untitled&gt;</span>}
