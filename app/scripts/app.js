@@ -290,6 +290,13 @@ class App extends React.Component {
 
         let title = AnalyseTrack(track);
         let title_decorators = [];
+        if (title.date) {
+          title_decorators.push(
+            <span className="podcast title-date" key="date">
+              {title.date}
+            </span>
+          );
+        }
         if (title.location) {
           title_decorators.push(<span className="location" key={track.id + '-loc'}>{title.location}</span>);
         }
@@ -305,8 +312,7 @@ class App extends React.Component {
         }
         if (title.live) {
           title_decorators.push(
-            <span className="podcast live"
-                  key="live">
+            <span className="podcast live" key="live">
               live
             </span>
           );

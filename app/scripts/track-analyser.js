@@ -76,6 +76,8 @@ let specialPodcastTreatments = {
   }
 };
 
+const DATE_REGEX = /\d{1,2}\.\d{2}\.\d{2,4}/;
+
 export default function AnalyseTrackTitle(track) {
   let title = track.title;
   let analysis = {};
@@ -100,6 +102,11 @@ export default function AnalyseTrackTitle(track) {
 
   // strip leading symbols caused by above reduction
   title = Utilities.Trim(title, ['-', ':'], 1);
+
+  if (DATE_REGEX.test(title)) {
+    analysis.date = title.match(DATE_REGEX)[0];
+    title = title.replace(analysis.date, '');
+  }
 
   // anything after '@' should be the location (without the @ itself)
   if (title.includes('@')) {
@@ -130,7 +137,10 @@ export default function AnalyseTrackTitle(track) {
   }
 
   // remove empty brackets, braces etc.
-  title = title.replace(/(\(\s*\))|(\[\s*\])|\|\s*\|/g, '');
+  title = title.replace(/(\(\s*\))|(\[\s*\])/g, '');
+  // replace double-separators by single version
+  title = title.replace(/\|\s*\|/, '|');
+  title = title.replace(/-\s*-/, '-');
   // strip leading symbols caused by above reductions
   title = Utilities.Trim(title, ['-', ':', '|']);
 
