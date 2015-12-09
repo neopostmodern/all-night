@@ -9,6 +9,10 @@ const COMMANDS = [
       explanation: "Play/Pause"
     },
     {
+      keys: ["R"],
+      explanation: "Check for new tracks"
+    },
+    {
       keys: ["Ctrl", Icons.ArrowRight],
       explanation: "Skip to next track"
     },
@@ -39,16 +43,16 @@ const COMMANDS = [
 
 export default class ProCommands extends React.Component {
   render() {
-    return <div id="pro-tips" key="pro-tips">
+    return <div id="pro-tips">
       <b>Keyboard commands for pro users</b>
       <div className="container">
         {COMMANDS.map((commandGroup, commandGroupIndex) =>
-          <div className="command-group">
+          <div className="command-group" key={commandGroupIndex}>
             {commandGroup.map((command, commandIndex) =>
-              <div className="command" key={'c_' + commandGroupIndex + '-' + commandIndex}>
+              <div className="command" key={commandIndex}>
                 <div className="keys">
                   {command.keys.map((key, keyIndex) =>
-                    <div className="key" key={'k_' + commandGroupIndex + '-' + commandIndex + '-' + keyIndex}>
+                    <div className="key" key={keyIndex}>
                       {key}
                     </div>
                   )}

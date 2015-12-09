@@ -31,6 +31,8 @@ const COLORS = [
   '#ffab91'
 ];
 
+const TRACKS_REQUEST_URL = '/me/activities';
+
 class App extends React.Component {
   constructor() {
     super();
@@ -38,7 +40,6 @@ class App extends React.Component {
     this.state = {
       user: null,
       tracks: [],
-      nextTracksUrl: '/me/activities',
       playing: null
     };
 
@@ -46,6 +47,7 @@ class App extends React.Component {
       _length: 0
     };
 
+    this._nextTracksUrl = TRACKS_REQUEST_URL;
     this._trackIds = [];
   }
 
@@ -85,6 +87,10 @@ class App extends React.Component {
           }
           break;
 
+        case "KeyR":
+          this.fetchSongs(TRACKS_REQUEST_URL, true);
+          break;
+
         default:
           keyCaught = false;
       }
@@ -110,32 +116,36 @@ class App extends React.Component {
     SC.get('/me', (user) => this.setState({ user: user }));
   }
 
-  fetchSongs() {
+  fetchSongs(url = null, prepend = false) {
     this.setState({ isFetchingSongs: true });
 
     return new Promise((resolve, reject) => {
-      SC.get(this.state.nextTracksUrl, {limit: 50}, (activities) => {
-        let tracks = this.state.tracks.concat(
-          activities.collection
-            .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
-            .map((activity) => activity.origin)
-            .filter((track) => !!track) // get rid of weird 'null' tracks (error in SC API?)
-            .filter((track) => track.duration > MS_20MIN)
-            .filter((track) => { // skip duplicate tracks
-              if (this._trackIds.indexOf(track.id) === -1) {
-                this._trackIds.push(track.id);
-                return true;
-              } else {
-                return false;
-              }
-            })
-        );
+      SC.get(url || this._nextTracksUrl, {limit: 50}, (activities) => {
+        let fetchedTracks = activities.collection
+          .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
+          .map((activity) => activity.origin)
+          .filter((track) => !!track) // get rid of weird 'null' tracks (error in SC API?)
+          .filter((track) => track.duration > MS_20MIN)
+          .filter((track) => { // skip duplicate tracks
+            if (this._trackIds.indexOf(track.id) === -1) {
+              this._trackIds.push(track.id);
+              return true;
+            } else {
+              return false;
+            }
+          });
+
+        let tracks = prepend ? fetchedTracks.concat(this.state.tracks) : this.state.tracks.concat(fetchedTracks);
 
         this.setState({
           isFetchingSongs: false,
-          nextTracksUrl: activities.next_href,
           tracks: tracks
         });
+
+        // only update next tracks URL if no URL was passed manually
+        if (!url) {
+          this._nextTracksUrl = activities.next_href;
+        }
 
         if (this.state.tracks.length < 20) {
           this.fetchSongs().then(() => resolve());
@@ -267,7 +277,7 @@ class App extends React.Component {
         </button>
       );
       if (this.state.showProCommands) {
-        content.push(<ProCommands />);
+        content.push(<ProCommands key="pro-commands" />);
       }
 
       content = content.concat(this.state.tracks.map((track) => {
@@ -358,7 +368,7 @@ class App extends React.Component {
       if (this.state.isFetchingSongs) {
         content.push(<div key="loading">Loading...</div>);
       } else {
-        content.push(<button type="button" onClick={this.fetchSongs.bind(this)} key="load-more">Load more</button>);
+        content.push(<button type="button" onClick={() => this.fetchSongs()} key="load-more">Load more</button>);
       }
     } else { // not logged in
       content = <div id="login-outer-wrapper">
