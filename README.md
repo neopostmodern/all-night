@@ -25,8 +25,8 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
     - [ ] KaterMukke
     - [ ] DHL Mix
     - [ ] MixCult Radio Podcast
-    - [ ] Allow space after pound sign (`# 150`)
-    - [ ] Bar (`|`) should delimit podcast name
+    - [x] Allow space after pound sign (`# 150`)
+    - [x] Bar (`|`) should delimit podcast name
 - [ ] Load a lot (e.g. all year)
 - [ ] Shuffle
 - [ ] Play any
