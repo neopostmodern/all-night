@@ -78,7 +78,7 @@ let specialPodcastTreatments = {
 };
 
 const DATE_REGEX = /(\d{1,2}(\.|\/|-)\d{1,2}(\.|\/|-)\d{2,4})|(\d{4}\s?-\s?\d{2}\s?-\s?\d{2})|(\d{5}\d*)/;
-const PODCAST_REGEX = /((\-|\|)\s*)?[^(\-|\|)]+((cast)|(mix))\s?(#\s?)?\d+(\s*(-|(by)))?/gi; // todo: abstract redundant patterns
+const PODCAST_REGEX = /((\-|\|)\s*)?[^(\-|\|)]+((cast)|(mix))\s?(#\s?)?\d{1,3}(\s*(-|(by)))?/gi; // todo: abstract redundant patterns
 
 export default function AnalyseTrackTitle(track) {
   let title = track.title;
@@ -133,7 +133,14 @@ export default function AnalyseTrackTitle(track) {
       name = track.user.username + " Podcast";
     }
 
-    let number = parseInt(podcast.match(/#?\d+/)[0].replace('#', ''));
+    let numberMatch = podcast.match(/#\d+/);
+    if (numberMatch) { // if there is a number with a leading `#`, always take that
+      numberMatch = numberMatch[0].replace('#', '');
+    } else { // otherwise take the last number found
+      let matches = podcast.match(/\d{1,3}/);
+      numberMatch = matches[matches.length - 1];
+    }
+    let number = parseInt(numberMatch);
 
     analysis.podcast = {
       name: name,
