@@ -186,6 +186,8 @@ gulp.task('set-production', function() {
 });
 
 gulp.task('production-tokens', function () {
+  var package_json = JSON.parse(fs.readFileSync('./package.json'));
+
   gulp.src('dist/scripts/app.js', { base : './' })
     .pipe(replace(
       '59c61d3d6e2555d2b2c7235c1c0c344c',
@@ -193,6 +195,10 @@ gulp.task('production-tokens', function () {
     .pipe(replace(
       'http://localhost:9000/callback.html',
       'http://allnight.neopostmodern.com/callback.html')) // callback url
+    .pipe(gulp.dest('./'));
+
+  gulp.src('dist/index.html', { base : './' })
+    .pipe(replace('{{VERSION}}', package_json.version))
     .pipe(gulp.dest('./'));
 });
 
