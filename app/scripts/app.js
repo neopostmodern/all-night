@@ -59,6 +59,12 @@ class App extends React.Component {
 
     this._nextTracksUrl = TRACKS_REQUEST_URL;
     this._trackIds = [];
+
+    this._debugging = {
+      getTrackNames: () => {
+        console.log(this.state.tracks.map((track) => track.title).join("\n"));
+      }
+    }
   }
 
   // hint: tokens and redirect will be replaced automatically with production version by gulp

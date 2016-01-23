@@ -78,7 +78,7 @@ let specialPodcastTreatments = {
 };
 
 const DATE_REGEX = /(\d{1,2}(\.|\/|-)\d{1,2}(\.|\/|-)\d{2,4})|(\d{4}\s?-\s?\d{2}\s?-\s?\d{2})|(\d{5}\d*)/;
-const PODCAST_REGEX = /((\-|\|)\s*)?[^(\-|\|)]+cast\s?(#\s?)?\d+(\s*(-|(by)))?/gi; // todo: abstract redundant patterns
+const PODCAST_REGEX = /((\-|\|)\s*)?[^(\-|\|)]+((cast)|(mix))\s?(#\s?)?\d+(\s*(-|(by)))?/gi; // todo: abstract redundant patterns
 
 export default function AnalyseTrackTitle(track) {
   let title = track.title;
@@ -128,7 +128,7 @@ export default function AnalyseTrackTitle(track) {
     podcast = podcast[0];
     title = title.replace(podcast, '');
 
-    let name = podcast.match(/[^-]+cast/gi)[0].trim();
+    let name = podcast.match(/[^(\-|\|)]+((cast)|(mix))/gi)[0].trim();
     if (name.toLowerCase() == 'podcast') {
       name = track.user.username + " Podcast";
     }
