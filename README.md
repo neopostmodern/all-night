@@ -17,18 +17,26 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
     - [ ] Unify character removal for location & title
     - [ ] Remove unmatched parantheses, brackets etc.
     - [ ] Remove parenthesis, brackets etc. that wrap entire entity
+    - [ ] "Live at"
 - [ ] Automatically recognize festivals
 - [ ] Venues
     - [ ] Renate
 - [ ] Podcasts
     - [ ] KaterMukke
+    - [ ] DHL Mix
+    - [ ] MixCult Radio Podcast
+    - [ ] Allow space after pound sign (`# 150`)
+    - [ ] Bar (`|`) should delimit podcast name
 - [ ] Load a lot (e.g. all year)
 - [ ] Shuffle
 - [ ] Play any
-- [ ] Display if track has been heared already
+- [ ] Display if track has been played already
 - [ ] Display liked tracks
+- [ ] Display if repost and who reposted
 - [ ] In-title dates
     - [ ] Parse and display uniformly
     - [ ] Recognize month names (`oct`, `october`, `oktober`)
 - [ ] Global player
 - [ ] Limit title length with CSS
+- [ ] Periodically refresh in background
+  - [ ] Update play count
