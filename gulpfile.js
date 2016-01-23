@@ -25,6 +25,8 @@ var bundler = {
       insertGlobals: true,
       cache: {},
       packageCache: {}
+    }).transform("babelify", {
+      presets: ["es2015", "react"]
     }));
   },
   bundle: function() {

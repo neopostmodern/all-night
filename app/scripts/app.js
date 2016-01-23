@@ -1,5 +1,6 @@
 //import 'babel/polyfill';
-import React from 'react/addons';
+import React from 'react'
+import ReactDOM from 'react-dom'
 import SoundCloudAudio from 'soundcloud-audio';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -418,4 +419,4 @@ class App extends React.Component {
   }
 }
 
-React.render(<App />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));
