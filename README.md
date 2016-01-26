@@ -23,15 +23,15 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
     - [ ] Renate
 - [ ] Podcasts
     - [ ] KaterMukke
-    - [ ] DHL Mix
+    - [x] DHL Mix *(targeted by general 'mix' acceptance)*
     - [ ] MixCult Radio Podcast
     - [x] Allow space after pound sign (`# 150`)
     - [x] Bar (`|`) should delimit podcast name
 - [ ] Load a lot (e.g. all year)
 - [ ] Shuffle
 - [ ] Play any
-- [ ] Display if track has been played already
-- [ ] Display liked tracks
+- [ ] Display if track has been played already (`✓`)
+- [ ] Display liked tracks (`♥`)
 - [ ] Display if repost and who reposted
 - [ ] In-title dates
     - [ ] Parse and display uniformly
