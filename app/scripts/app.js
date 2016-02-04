@@ -1,6 +1,8 @@
 //import 'babel/polyfill';
 import React from 'react'
 import ReactDOM from 'react-dom'
+import ReactUpdate from 'react-addons-update'
+
 import SoundCloudAudio from 'soundcloud-audio';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -126,11 +128,31 @@ class App extends React.Component {
 
   fetchEverything() {
     this.fetchUserInformation();
+    this.fetchUserLikes();
     this.fetchSongs();
   }
 
   fetchUserInformation() {
     SC.get('/me', (user) => this.setState({ user: user }));
+  }
+
+  fetchUserLikes() {
+    SC.get('/me/favorites', (favorites) => this.setState({ likes: favorites.map((track) => track.id) }));
+  }
+
+  _markLikes() {
+    let updates = {};
+    this.state.tracks.forEach((track, trackIndex) => {
+      // skip if likes unavailable or track already marked
+      if (!this.state.likes || track.liked !== undefined) {
+        return track;
+      }
+
+      let liked = this.state.likes.includes(track.id);
+      updates[trackIndex] = { liked: { $set: liked }};
+    });
+
+    this.setState({ tracks: ReactUpdate(this.state.tracks, updates) });
   }
 
   fetchSongs(url = null, prepend = false) {
@@ -158,6 +180,7 @@ class App extends React.Component {
           isFetchingSongs: false,
           tracks: tracks
         });
+        this._markLikes();
 
         // only update next tracks URL if no URL was passed manually
         if (!url) {
@@ -378,12 +401,20 @@ class App extends React.Component {
           </div>;
         }
 
+        let userRelation;
+        if (track.liked) {
+          userRelation = <span style={{color: 'darkred'}}>♥</span>;
+        }
+
         return <div className={classes} key={track.id} onDoubleClick={this.play.bind(this, track.id)}>
           {venue}
           {leadingField}
           <div className="title" title={track.title}>
             {title.name ? title.name : <span className="untitled">&lt;untitled&gt;</span>}
             {title_decorators}
+          </div>
+          <div className="user-relation">
+            {userRelation}
           </div>
           <div className="artist">
             <a href={track.user.permalink_url} target="_blank" title={artist + "'s profile on SoundCloud"}>
