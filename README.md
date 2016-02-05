@@ -37,6 +37,6 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
     - [ ] Parse and display uniformly
     - [ ] Recognize month names (`oct`, `october`, `oktober`)
 - [ ] Global player
-- [ ] Limit title length with CSS
+- [x] Limit title length with CSS
 - [ ] Periodically refresh in background
   - [ ] Update play count

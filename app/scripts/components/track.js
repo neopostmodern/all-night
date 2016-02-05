@@ -49,26 +49,26 @@ var Track = (props) => {
     }
   }
 
-  let title_decorators = [];
-  if (meta.date) {
-    title_decorators.push(
-      <span className="podcast title-date" key="date">
-              {meta.date}
-            </span>
-    );
+  let context_information = [];
+  if (meta.location) {
+    context_information.push(<span className="location" key={track.id + '-loc'}>{meta.location}</span>);
   }
   if (meta.live) {
-    title_decorators.push(
+    context_information.push(
       <span className="podcast live" key="live">
               live
             </span>
     );
   }
-  if (meta.location) {
-    title_decorators.push(<span className="location" key={track.id + '-loc'}>{meta.location}</span>);
+  if (meta.date) {
+    context_information.push(
+      <span className="podcast title-date" key="date">
+              {meta.date}
+            </span>
+    );
   }
   if (meta.podcast) {
-    title_decorators.push(
+    context_information.push(
       <span className="podcast"
             key={track.id + '-pod'}
             title={meta.podcast.name}
@@ -77,8 +77,6 @@ var Track = (props) => {
             </span>
     );
   }
-
-  let artist = Utilities.CropString(track.user.username, MAX_ARTIST_LENGTH);
 
   let leadingField;
   if (props.isPlaying) {
@@ -117,14 +115,14 @@ var Track = (props) => {
     {leadingField}
     <div className="title" title={track.title}>
       {meta.name ? meta.name : <span className="untitled">&lt;untitled&gt;</span>}
-      {title_decorators}
     </div>
+    {context_information}
     <div className="user-relation">
       {userRelation}
     </div>
     <div className="artist">
-      <a href={track.user.permalink_url} target="_blank" title={artist + "'s profile on SoundCloud"}>
-        {artist}
+      <a href={track.user.permalink_url} target="_blank" title={track.user.username + "'s profile on SoundCloud"}>
+        {track.user.username}
       </a>
     </div>
     {popularityOrProgress}

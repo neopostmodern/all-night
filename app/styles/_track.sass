@@ -1,5 +1,11 @@
 $POPULARITY_PROGRESS_WIDTH: 5.8rem
 
+.text-ellipsis
+  overflow: hidden // "overflow" value must be different from "visible"
+  text-overflow: ellipsis
+  min-width: 0
+  white-space: nowrap
+
 .track
   display: flex
   align-items: center
@@ -29,7 +35,7 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     position: relative
     right: 0.3em
 
-    width: 4em
+    flex-basis: 4em
     margin-right: 0.6em
     padding-left: 0.4em
 
@@ -49,7 +55,7 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     top: 0
 
   .date
-    width: 3.6em
+    flex-basis: 3.6em
     margin-right: 1rem
 
     text-align: right
@@ -60,29 +66,31 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
 
   .title
     flex-grow: 2
+    flex-basis: 0 // hack: somehow works because it's a small number
+    margin-right: auto
+
+    @extend .text-ellipsis
 
     .untitled
       color: gray
 
-    .location
-      float: right
-      font-style: italic
-      margin-right: 0.3rem
+  .location
+    float: right
+    font-style: italic
+    margin-right: 0.3rem
 
-    .podcast
-      float: right
+  .podcast
+    padding: 0 0.4em
+    margin-right: 0.3rem
+    background-color: gray
 
-      padding: 0 0.4em
-      margin-right: 0.3rem
-      background-color: gray
+    &.live
+      background-color: black
+      color: #eee
 
-      &.live
-        background-color: black
-        color: #eee
-
-      &.title-date
-        background-color: white
-        border: 1px solid
+    &.title-date
+      background-color: white
+      border: 1px solid
 
   &.active
     .podcast.title-date
@@ -90,7 +98,7 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
       border-bottom-width: 0
 
   .user-relation
-    width: 1.5rem
+    flex-basis: 1.5rem
     text-align: center
 
   .duration
@@ -99,21 +107,21 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     color: gray
 
   .popularity
-    width: $POPULARITY_PROGRESS_WIDTH
+    flex-basis: $POPULARITY_PROGRESS_WIDTH
 
     .bar
       background-color: gray
       height: 2px
 
   .progress
-    width: $POPULARITY_PROGRESS_WIDTH
+    flex-basis: $POPULARITY_PROGRESS_WIDTH
     text-align: right
 
   .artist
-    margin-left: auto
-
-    width: 15rem
+    flex-basis: 15rem
     margin-right: 1rem
+
+    @extend .text-ellipsis
 
   .origin
     margin-left: 1rem
