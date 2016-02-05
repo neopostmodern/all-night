@@ -30,7 +30,7 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
 - [ ] Load a lot (e.g. all year)
 - [ ] Shuffle
 - [ ] Play any
-- [ ] Display if track has been played already (`✓`)
+- [x] Display if track has been played already (`✓`)
 - [x] Display liked tracks (`♥`)
 - [ ] Display if repost and who reposted
 - [ ] In-title dates

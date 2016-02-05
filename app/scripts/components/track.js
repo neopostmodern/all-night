@@ -107,8 +107,15 @@ var Track = (props) => {
   }
 
   let userRelation;
+  if (props.history === 1) {
+    userRelation = <i className="material-icons" style={{color: 'gray'}} title="You've heard part of this track">done</i>;
+  } else if (props.history === 2) {
+    userRelation = <i className="material-icons" style={{color: 'gray'}} title="You've heard this track">done_all</i>;
+  }
+
+  // allowed to override anything
   if (track.liked) {
-    userRelation = <i className="material-icons" style={{color: 'darkred'}}>favorite</i>;
+    userRelation = <i className="material-icons" style={{color: 'darkred'}} title="You've favorited this track">favorite</i>;
   }
 
   return <div className={classes}>

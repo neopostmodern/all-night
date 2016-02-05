@@ -9,6 +9,7 @@ import SoundCloudAudio from 'soundcloud-audio';
 import moment from 'moment';
 import "moment-duration-format";
 
+import History from './history'
 import AnalyseTrack from './track-analyser';
 import Track from './components/track';
 import ProCommands from './components/pro-commands';
@@ -104,19 +105,24 @@ class App extends React.Component {
   }
 
   fetchEverything() {
-    this.fetchUserInformation();
+    this.fetchUserInformation()
+      .then(this.loadHistory.bind(this, null));
     this.fetchUserLikes();
     this.fetchSongs();
   }
 
+  loadHistory() {
+    this.history = new History("plays-" + this.state.user.id);
+  }
+
   fetchUserInformation() {
-    SoundCloud.get('/me')
+    return SoundCloud.get('/me')
       .then((user) => this.setState({ user: user }))
       .catch(this._soundCloudErrorHandler.bind(this, "Fetch user"));
   }
 
   fetchUserLikes() {
-    SoundCloud.get('/me/favorites')
+    return SoundCloud.get('/me/favorites')
       .then((favorites) => this.setState({ likes: favorites.map((track) => track.id) }))
       .catch(this._soundCloudErrorHandler.bind(this, "Fetch favorites"));
   }
@@ -144,7 +150,7 @@ class App extends React.Component {
       options.cursor = this._nextTracksCursor
     }
 
-    SC.get(TRACKS_REQUEST_URL, options)
+    return SC.get(TRACKS_REQUEST_URL, options)
       .then((activities) => {
         let fetchedTracks = activities.collection
           .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
@@ -195,7 +201,11 @@ class App extends React.Component {
       playingSongId: trackId
     });
 
-    this.Player.on('ended', this.playNext.bind(this, null));
+    this.Player.on('ended', () => {
+      // or should I use 'trackId' from local scope here?
+      this.history.upgradeItem(this.state.playingSongId, 2);
+      this.playNext();
+    });
 
     this.Player.on('play', this.forceUpdate.bind(this, null));
     this.Player.on('pause', this.forceUpdate.bind(this, null));
@@ -203,6 +213,8 @@ class App extends React.Component {
     this.Player.on('suspend', this.forceUpdate.bind(this, null));
     this.Player.on('stalled', this.forceUpdate.bind(this, null));
     this.Player.audio.addEventListener("timeupdate", this.forceUpdate.bind(this, null));
+
+    this.history.upgradeItem(trackId, 1);
   }
 
   pause() {
@@ -296,6 +308,7 @@ class App extends React.Component {
       content = content.concat(this.state.tracks.map((track) =>
         <Track track={track}
                isPlaying={track.id === this.state.playingSongId}
+               history={this.history.getItem(track.id)}
                audio={this.Player.audio}
 
                onPlay={this.play.bind(this, track.id)}
