@@ -3,7 +3,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactUpdate from 'react-addons-update'
 
+import SoundCloud from 'soundcloud'
 import SoundCloudAudio from 'soundcloud-audio';
+
 import moment from 'moment';
 import "moment-duration-format";
 
@@ -29,7 +31,7 @@ class App extends React.Component {
       _length: 0
     };
 
-    this._nextTracksUrl = TRACKS_REQUEST_URL;
+    this._nextTracksCursor = null;
     this._trackIds = [];
 
     this._debugging = {
@@ -41,7 +43,7 @@ class App extends React.Component {
 
   // hint: tokens and redirect will be replaced automatically with production version by gulp
   componentWillMount() {
-    SC.initialize({
+    SoundCloud.initialize({
       client_id: "59c61d3d6e2555d2b2c7235c1c0c344c",
       redirect_uri: "http://localhost:9000/callback.html"
     });
@@ -76,7 +78,7 @@ class App extends React.Component {
           break;
 
         case "KeyR":
-          this.fetchSongs(TRACKS_REQUEST_URL, true);
+          this.fetchSongs(true);
           break;
 
         default:
@@ -89,10 +91,16 @@ class App extends React.Component {
     };
   }
 
+  _soundCloudErrorHandler(action, error) {
+    console.error("SoundCloud error within: " + action, error);
+  }
+
   _requestLogin() {
-    SC.connect(() =>
-      this.fetchEverything()
-    )
+    SoundCloud.connect()
+      .then(() =>
+        this.fetchEverything()
+      )
+      .catch(this._soundCloudErrorHandler.bind(this, "Connect"))
   }
 
   fetchEverything() {
@@ -102,11 +110,15 @@ class App extends React.Component {
   }
 
   fetchUserInformation() {
-    SC.get('/me', (user) => this.setState({ user: user }));
+    SoundCloud.get('/me')
+      .then((user) => this.setState({ user: user }))
+      .catch(this._soundCloudErrorHandler.bind(this, "Fetch user"));
   }
 
   fetchUserLikes() {
-    SC.get('/me/favorites', (favorites) => this.setState({ likes: favorites.map((track) => track.id) }));
+    SoundCloud.get('/me/favorites')
+      .then((favorites) => this.setState({ likes: favorites.map((track) => track.id) }))
+      .catch(this._soundCloudErrorHandler.bind(this, "Fetch favorites"));
   }
 
   _markLikes() {
@@ -124,11 +136,16 @@ class App extends React.Component {
     this.setState({ tracks: ReactUpdate(this.state.tracks, updates) });
   }
 
-  fetchSongs(url = null, prepend = false) {
+  fetchSongs(loadNewer = false) {
     this.setState({ isFetchingSongs: true });
 
-    return new Promise((resolve, reject) => {
-      SC.get(url || this._nextTracksUrl, {limit: 50}, (activities) => {
+    let options = { limit: 50 };
+    if (!loadNewer && this._nextTracksCursor) {
+      options.cursor = this._nextTracksCursor
+    }
+
+    SC.get(TRACKS_REQUEST_URL, options)
+      .then((activities) => {
         let fetchedTracks = activities.collection
           .filter((activity) => activity.type === 'track' || activity.type === 'track-repost')
           .map((activity) => activity.origin)
@@ -146,7 +163,7 @@ class App extends React.Component {
             return track;
           });
 
-        let tracks = prepend ? fetchedTracks.concat(this.state.tracks) : this.state.tracks.concat(fetchedTracks);
+        let tracks = loadNewer ? fetchedTracks.concat(this.state.tracks) : this.state.tracks.concat(fetchedTracks);
 
         this.setState({
           isFetchingSongs: false,
@@ -155,17 +172,19 @@ class App extends React.Component {
         this._markLikes();
 
         // only update next tracks URL if no URL was passed manually
-        if (!url) {
-          this._nextTracksUrl = activities.next_href;
+        if (!loadNewer) {
+          let cursor = activities.next_href;
+          cursor = cursor.substr(cursor.indexOf("cursor=") + "cursor=".length);
+          this._nextTracksCursor = cursor;
         }
 
         if (this.state.tracks.length < 20) {
-          this.fetchSongs().then(() => resolve());
+          return this.fetchSongs();
         } else {
-          resolve();
+          return fetchedTracks;
         }
-      });
-    });
+      })
+      .catch(this._soundCloudErrorHandler.bind(this, "Fetch tracks"));;
   }
 
   play(trackId) {
