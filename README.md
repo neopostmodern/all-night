@@ -31,7 +31,7 @@ See it at [allnight.neopostmodern.com](http://allnight.neopostmodern.com/)
 - [ ] Shuffle
 - [ ] Play any
 - [ ] Display if track has been played already (`✓`)
-- [ ] Display liked tracks (`♥`)
+- [x] Display liked tracks (`♥`)
 - [ ] Display if repost and who reposted
 - [ ] In-title dates
     - [ ] Parse and display uniformly
