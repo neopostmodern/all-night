@@ -108,7 +108,7 @@ var Track = (props) => {
 
   let userRelation;
   if (track.liked) {
-    userRelation = <span style={{color: 'darkred'}}>♥</span>;
+    userRelation = <i className="material-icons" style={{color: 'darkred'}}>favorite</i>;
   }
 
   return <div className={classes}>
