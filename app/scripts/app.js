@@ -4,45 +4,14 @@ import ReactDOM from 'react-dom'
 import ReactUpdate from 'react-addons-update'
 
 import SoundCloudAudio from 'soundcloud-audio';
-import classNames from 'classnames';
-import _ from 'lodash';
 import moment from 'moment';
 import "moment-duration-format";
 
-import Utilities from './util'
 import AnalyseTrack from './track-analyser';
-import FestivalAnalyser from './venue-analyser';
+import Track from './components/track';
 import ProCommands from './components/pro-commands';
 
 const MS_20MIN = 20 * 60 * 1000;
-// all .lighten-3 from http://materializecss.com/color.html
-const COLORS = [
-  '#ef9a9a',
-  '#b39ddb',
-  '#ffcc80',
-  '#c5e1a5',
-  '#90caf9',
-  '#fff59d',
-  '#80deea',
-  '#f48fb1',
-  '#a5d6a7',
-  '#9fa8da',
-  '#e6ee9c',
-  '#81d4fa',
-  '#ffe082',
-  '#80cbc4',
-  '#ce93d8',
-  '#ffab91'
-];
-const FESTIVAL_ICONS = {
-  'fusion': 'images/festivals/fusion.png',
-  'kater': 'images/festivals/katerblau.png',
-  'aboutblank': 'images/festivals/aboutblank.png',
-  'feel': 'images/festivals/feel.png',
-  '3000-grad': 'images/festivals/3000.png',
-  'ploetzlich': 'images/festivals/ploetzlich.png',
-  'burning-man': 'images/festivals/burning-man.png'
-};
 
 const TRACKS_REQUEST_URL = '/me/activities';
 
@@ -172,6 +141,9 @@ class App extends React.Component {
             } else {
               return false;
             }
+          }).map((track) => {
+            track.meta = AnalyseTrack(track);
+            return track;
           });
 
         let tracks = prepend ? fetchedTracks.concat(this.state.tracks) : this.state.tracks.concat(fetchedTracks);
@@ -286,24 +258,6 @@ class App extends React.Component {
   }
 
   render() {
-    const MAX_ARTIST_LENGTH = 22;
-    let formatDuration = (duration) => {
-      if (duration.hours() > 0) {
-        return duration.format('H:mm:ss');
-      } else {
-        return duration.format('m:ss', {trim: false});
-      }
-    };
-
-    let getColorForPodcast = ((podcastName) => {
-      if (! this.podcastColorMap[podcastName]) {
-        this.podcastColorMap[podcastName] = COLORS[this.podcastColorMap._length % COLORS.length];
-        this.podcastColorMap._length += 1;
-      }
-
-      return this.podcastColorMap[podcastName];
-    }).bind(this);
-
     let content;
 
     if (this.state.user) {
@@ -320,116 +274,18 @@ class App extends React.Component {
         content.push(<ProCommands key="pro-commands" />);
       }
 
-      content = content.concat(this.state.tracks.map((track) => {
-        let isTrackPlaying = track.id === this.state.playingSongId;
+      content = content.concat(this.state.tracks.map((track) =>
+        <Track track={track}
+               isPlaying={track.id === this.state.playingSongId}
+               audio={this.Player.audio}
 
-        let duration = moment.duration(track.duration);
-        let length = formatDuration(duration);
+               onPlay={this.play.bind(this, track.id)}
+               onResume={this.resume.bind(this)}
+               onPause={this.pause.bind(this)}
 
-        let date = moment(track.created_at.substr(0, 10), "YYYY/MM/DD");
-
-        let title = AnalyseTrack(track);
-        let venue;
-        if (title.venue) {
-          let venue_name = FestivalAnalyser.getName(title.venue);
-          let icon = FESTIVAL_ICONS[title.venue];
-          if (icon) {
-            venue = <img className="venue" src={icon} alt={venue_name} title={venue_name} />
-          } else {
-            venue = <b className="venue">{venue_name}</b>;
-          }
-        }
-
-        let title_decorators = [];
-        if (title.date) {
-          title_decorators.push(
-            <span className="podcast title-date" key="date">
-              {title.date}
-            </span>
-          );
-        }
-        if (title.live) {
-          title_decorators.push(
-            <span className="podcast live" key="live">
-              live
-            </span>
-          );
-        }
-        if (title.location) {
-          title_decorators.push(<span className="location" key={track.id + '-loc'}>{title.location}</span>);
-        }
-        if (title.podcast) {
-          title_decorators.push(
-            <span className="podcast"
-                  key={track.id + '-pod'}
-                  title={title.podcast.name}
-                  style={{backgroundColor: getColorForPodcast(title.podcast.name)}}>
-              #{title.podcast.number}
-            </span>
-          );
-        }
-
-        let artist = Utilities.CropString(track.user.username, MAX_ARTIST_LENGTH);
-
-        let leadingField;
-        if (isTrackPlaying) {
-          if (this.Player.audio.paused) {
-            leadingField = <div className="action" onClick={this.resume.bind(this)}>play</div>;
-          } else {
-            if (false) { // todo: distinguish buffering/stuck and playing
-              leadingField = <div className="action">... ({this.Player.audio.readyState})</div>;
-            } else {
-              leadingField = <div className="action" onClick={this.pause.bind(this)}>pause</div>;
-            }
-          }
-        } else {
-          leadingField = [
-            <div key={track.id + '-date'} className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>,
-            <div key={track.id + '-action'}className="action" onClick={this.play.bind(this, track.id)}>play</div>
-          ];
-        }
-
-        let classes = classNames("track", { 'active': isTrackPlaying });
-
-        let popularityOrProgress = <div className="popularity" title={track.playback_count + " plays"}>
-          <div className="bar" style={{width: Math.max(Math.log10(track.playback_count) - 2, 0) + 'rem'}}></div>
-        </div>;
-        if (isTrackPlaying) {
-          let formattedProgress = formatDuration(moment.duration(this.Player.audio.currentTime * 1000));
-          popularityOrProgress = <div className="progress">
-            {formattedProgress} /
-          </div>;
-        }
-
-        let userRelation;
-        if (track.liked) {
-          userRelation = <span style={{color: 'darkred'}}>♥</span>;
-        }
-
-        return <div className={classes} key={track.id} onDoubleClick={this.play.bind(this, track.id)}>
-          {venue}
-          {leadingField}
-          <div className="title" title={track.title}>
-            {title.name ? title.name : <span className="untitled">&lt;untitled&gt;</span>}
-            {title_decorators}
-          </div>
-          <div className="user-relation">
-            {userRelation}
-          </div>
-          <div className="artist">
-            <a href={track.user.permalink_url} target="_blank" title={artist + "'s profile on SoundCloud"}>
-              {artist}
-            </a>
-          </div>
-          {popularityOrProgress}
-          <div className="duration">{length}</div>
-          <div className="origin">
-            <a href={track.permalink_url} target="_blank" title="Go to track on SoundCloud">
-              <img src="/images/sc/logo.png" />
-            </a>
-          </div>
-        </div>
-      }));
+               key={track.id}
+               onDoubleClick={this.play.bind(this, track.id)} />
+      ));
 
       if (this.state.isFetchingSongs) {
         content.push(<div key="loading">Loading...</div>);
