@@ -18,7 +18,8 @@ const FESTIVAL_ICONS = {
   'feel': 'images/festivals/feel.png',
   '3000-grad': 'images/festivals/3000.png',
   'ploetzlich': 'images/festivals/ploetzlich.png',
-  'burning-man': 'images/festivals/burning-man.png'
+  'burning-man': 'images/festivals/burning-man.png',
+  'dimensions': 'images/festivals/dimensions.png'
 };
 
 function formatDuration(duration) {

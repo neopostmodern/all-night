@@ -38,6 +38,11 @@ const Venues = [
     matcher: /feel\s?musik/i,
     name: "Feel",
     id: "feel"
+  },
+  {
+    matcher: /dimensions ((festival)|\d{4})/i,
+    name: "Dimensions",
+    id: "dimensions"
   }
 ];
 

@@ -164,9 +164,6 @@ export default function AnalyseTrackTitle(track) {
     analysis.live = true;
   }
 
-  if (analysis.location) {
-    analysis.location = Utilities.CropString(analysis.location, title.length > 30 ? 20 : 40);
-  }
   analysis.name = title.length > 0 ? title : null;
 
   return analysis;
