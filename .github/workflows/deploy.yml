@@ -1,0 +1,30 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Build with react-scripts and deploy via FTP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+      - name: Install packages
+        run: npm ci
+      - name: Build React project
+        run: npm run build
+        env:
+          REACT_APP_SOUNDCLOUD_ID: ${{ secrets.SOUNDCLOUD_ID }}
+          REACT_APP_SOUNDCLOUD_REDIRECT: ${{ secrets.SOUNDCLOUD_REDIRECT }}
+      - name: Deploy via FTP
+        uses: sebastianpopp/ftp-action@releases/v2
+        with:
+          localDir: ./build/
+          remoteDir: ./
+          host: chi-node5.websitehostserver.net:21
+          user: github@allnight.neopostmodern.com
+          password: ${{ secrets.FTP_PASSWORD }}
