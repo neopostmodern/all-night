@@ -44,7 +44,9 @@ class App extends React.Component {
     SoundCloud.initialize({
       client_id: process.env.REACT_APP_SOUNDCLOUD_ID,
       redirect_uri: process.env.REACT_APP_SOUNDCLOUD_REDIRECT,
-      oauth_token: process.env.REACT_APP_SOUNDCOULD_OAUTH_TOKEN,
+      oauth_token:
+        localStorage.getItem('soundCloudOAuthToken') ||
+        process.env.REACT_APP_SOUNDCOULD_OAUTH_TOKEN,
     })
 
     this.Player = new SoundCloudAudio(process.env.REACT_APP_SOUNDCLOUD_ID)

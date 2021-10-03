@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>Callback</title>
+
+  <script>
+    localStorage.setItem('soundCloudOAuthToken', new URLSearchParams(window.location.search).get('code'))
+  </script>
 </head>
 <body onload="window.setTimeout(opener.SC.connectCallback, 1);">
 <p>
