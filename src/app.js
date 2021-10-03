@@ -344,6 +344,7 @@ class App extends React.Component {
       } else {
         content.push(
           <button
+            id='load-more'
             type='button'
             onClick={() => this.fetchSongs()}
             key='load-more'

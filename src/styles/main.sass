@@ -2,8 +2,16 @@
 
 @import foundation
 
+$main-width: 150ch
+$margin: 3rem
+$indent-left: calc(4rem + 6ch)
+
 #app
-  margin-bottom: 3rem
+  margin: $margin
+
+main
+  margin: 0 auto
+  max-width: $main-width
 
 button
   font-family: $font-family-monospace
@@ -14,12 +22,17 @@ button
 
   cursor: pointer
 
+#load-more
+  margin-left: calc(7ch + 1rem)
+
 #title
   margin: 2rem 0 3rem
 
-  h1
-    font-size: 4rem
+  h1, h2
+    font-size: 100%
     line-height: 1
+    margin-left: $indent-left
+    margin-right: 3rem
 
     sup
       color: gray
@@ -27,11 +40,14 @@ button
 
   h2
     font-style: italic
-    font-size: 190%
 
-#info
-  font-size: 80%
+footer
   margin-bottom: 1rem
+  margin-left: $indent-left
+
+  @media (max-width: $main-width + 10ch)
+    margin-left: 1rem
+    margin-right: 1rem
 
   a
     text-decoration: underline
