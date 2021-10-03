@@ -48,7 +48,7 @@ class App extends React.Component {
         process.env.REACT_APP_SOUNDCOULD_OAUTH_TOKEN,
     })
 
-    this.Player = new SoundCloudAudio(process.env.REACT_APP_SOUNDCLOUD_ID)
+    this.Player = new SoundCloudAudio()
 
     // inefficient if not logged in, but falls back gracefully
     this.fetchEverything()
@@ -200,30 +200,36 @@ class App extends React.Component {
   }
 
   play(trackId) {
-    this.Player.play({
-      streamUrl: 'https://api.soundcloud.com/tracks/' + trackId + '/stream',
-    })
-    this.setState({
-      playingSongId: trackId,
-    })
+    SoundCloud.get('tracks/' + trackId + '/streams')
+      .then((streams) => streams.http_mp3_128_url)
+      .then((streamUrl) => {
+        this.Player.play({
+          streamUrl,
+        })
 
-    this.Player.on('ended', () => {
-      // or should I use 'trackId' from local scope here?
-      this.history.upgradeItem(this.state.playingSongId, 2)
-      this.playNext()
-    })
+        this.setState({
+          playingSongId: trackId,
+        })
 
-    this.Player.on('play', this.forceUpdate.bind(this, null))
-    this.Player.on('pause', this.forceUpdate.bind(this, null))
-    this.Player.on('waiting', this.forceUpdate.bind(this, null))
-    this.Player.on('suspend', this.forceUpdate.bind(this, null))
-    this.Player.on('stalled', this.forceUpdate.bind(this, null))
-    this.Player.audio.addEventListener(
-      'timeupdate',
-      this.forceUpdate.bind(this, null),
-    )
+        this.Player.on('ended', () => {
+          // or should I use 'trackId' from local scope here?
+          this.history.upgradeItem(this.state.playingSongId, 2)
+          this.playNext()
+        })
 
-    this.history.upgradeItem(trackId, 1)
+        this.Player.on('play', this.forceUpdate.bind(this, null))
+        this.Player.on('pause', this.forceUpdate.bind(this, null))
+        this.Player.on('waiting', this.forceUpdate.bind(this, null))
+        this.Player.on('suspend', this.forceUpdate.bind(this, null))
+        this.Player.on('stalled', this.forceUpdate.bind(this, null))
+        this.Player.audio.addEventListener(
+          'timeupdate',
+          this.forceUpdate.bind(this, null),
+        )
+
+        this.history.upgradeItem(trackId, 1)
+      })
+      .catch((error) => console.error('Failed to play track', error))
   }
 
   pause() {
