@@ -4,22 +4,29 @@ import ClassNames from "classnames"
 import moment from 'moment';
 import "moment-duration-format";
 
-import FestivalAnalyser from "../venue-analyser";
-import Utilities from "../util";
-import ColorOnDemand from "../colors-on-demand"
+import FestivalAnalyser from "../util/venue-analyser";
+import Utilities from "../util/util";
+import ColorOnDemand from "../util/colors-on-demand"
 
-// todo: remove & replace by CSS
-const MAX_ARTIST_LENGTH = 22;
+import SoundCloudLogo from '../images/sc/logo.png'
+import FusionIcon from '../images/festivals/fusion.png'
+import KaterIcon from '../images/festivals/katerblau.png'
+import AboutBlankIcon from '../images/festivals/aboutblank.png'
+import FeelIcon from '../images/festivals/feel.png'
+import ThreeThousandIcon from '../images/festivals/3000.png'
+import PloetzlichIcon from '../images/festivals/ploetzlich.png'
+import BurningManIcon from '../images/festivals/burning-man.png'
+import DimensionsIcon from '../images/festivals/dimensions.png'
 
 const FESTIVAL_ICONS = {
-  'fusion': 'images/festivals/fusion.png',
-  'kater': 'images/festivals/katerblau.png',
-  'aboutblank': 'images/festivals/aboutblank.png',
-  'feel': 'images/festivals/feel.png',
-  '3000-grad': 'images/festivals/3000.png',
-  'ploetzlich': 'images/festivals/ploetzlich.png',
-  'burning-man': 'images/festivals/burning-man.png',
-  'dimensions': 'images/festivals/dimensions.png'
+  'fusion': FusionIcon,
+  'kater': KaterIcon,
+  'aboutblank': AboutBlankIcon,
+  'feel': FeelIcon,
+  '3000-grad': ThreeThousandIcon,
+  'ploetzlich': PloetzlichIcon,
+  'burning-man': BurningManIcon,
+  'dimensions': DimensionsIcon
 };
 
 function formatDuration(duration) {
@@ -90,14 +97,14 @@ var Track = (props) => {
   } else {
     leadingField = [
       <div key={track.id + '-date'} className="date" title={date.format('YYYY-MM-DD')}>{date.format('D-MMM')}</div>,
-      <div key={track.id + '-action'}className="action" onClick={props.onPlay}>play</div>
+      <div key={track.id + '-action'} className="action" onClick={props.onPlay}>play</div>
     ];
   }
 
   let classes = ClassNames("track", { 'active': props.isPlaying });
 
   let popularityOrProgress = <div className="popularity" title={track.playback_count + " plays"}>
-    <div className="bar" style={{width: Math.max(Math.log10(track.playback_count) - 2, 0) + 'rem'}}></div>
+    <div className="bar" style={{width: Math.max(Math.log10(track.playback_count) - 2, 0) + 'rem'}} />
   </div>;
   if (props.isPlaying) {
     let formattedProgress = formatDuration(moment.duration(props.audio.currentTime * 1000));
@@ -137,7 +144,7 @@ var Track = (props) => {
     <div className="duration">{length}</div>
     <div className="origin">
       <a href={track.permalink_url} target="_blank" title="Go to track on SoundCloud">
-        <img src="/images/sc/logo.png" />
+        <img src={SoundCloudLogo} alt='SoundCloud Logo' />
       </a>
     </div>
   </div>;

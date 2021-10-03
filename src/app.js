@@ -1,7 +1,4 @@
-//import 'babel/polyfill';
 import React from 'react'
-import ReactDOM from 'react-dom'
-import ReactUpdate from 'react-addons-update'
 
 import SoundCloud from 'soundcloud'
 import SoundCloudAudio from 'soundcloud-audio';
@@ -9,8 +6,8 @@ import SoundCloudAudio from 'soundcloud-audio';
 import moment from 'moment';
 import "moment-duration-format";
 
-import History from './history'
-import AnalyseTrack from './track-analyser';
+import History from './util/history'
+import AnalyseTrack from './util/track-analyser';
 import Track from './components/track';
 import ProCommands from './components/pro-commands';
 
@@ -45,11 +42,15 @@ class App extends React.Component {
   // hint: tokens and redirect will be replaced automatically with production version by gulp
   componentWillMount() {
     SoundCloud.initialize({
-      client_id: "59c61d3d6e2555d2b2c7235c1c0c344c",
-      redirect_uri: "http://localhost:9000/callback.html"
+      client_id: process.env.REACT_APP_SOUNDCLOUD_ID,
+      redirect_uri: process.env.REACT_APP_SOUNDCLOUD_REDIRECT,
+      oauth_token: process.env.REACT_APP_SOUNDCOULD_OAUTH_TOKEN,
     });
 
-    this.Player = new SoundCloudAudio('59c61d3d6e2555d2b2c7235c1c0c344c');
+    this.Player = new SoundCloudAudio(process.env.REACT_APP_SOUNDCLOUD_ID);
+
+    // inefficient if not logged in, but falls back gracefully
+    this.fetchEverything()
 
     window.onkeydown = (event) => {
       let keyCaught = true;
@@ -128,7 +129,7 @@ class App extends React.Component {
   }
 
   _markLikes() {
-    let updates = {};
+    const tracks = [...this.state.tracks]
     this.state.tracks.forEach((track, trackIndex) => {
       // skip if likes unavailable or track already marked
       if (!this.state.likes || track.liked !== undefined) {
@@ -136,10 +137,12 @@ class App extends React.Component {
       }
 
       let liked = this.state.likes.includes(track.id);
-      updates[trackIndex] = { liked: { $set: liked }};
+      if (liked !== track.liked) {
+        tracks[trackIndex] = { ...tracks[trackIndex], liked }
+      }
     });
 
-    this.setState({ tracks: ReactUpdate(this.state.tracks, updates) });
+    this.setState({ tracks });
   }
 
   fetchSongs(loadNewer = false) {
@@ -338,4 +341,4 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+export default App
