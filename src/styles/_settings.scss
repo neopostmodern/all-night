@@ -125,7 +125,7 @@ $font-family-monospace: 'Courier New', Courier, monospace;
 
 // We use these to control various global styles
 // $body-bg: $white;
-// $body-font-color: $jet;
+$body-font-color: var(--font-color);
 $body-font-family: $font-family-monospace;
 // $body-font-weight: $font-weight-normal;
 // $body-font-style: normal;
@@ -196,7 +196,7 @@ $body-font-family: $font-family-monospace;
 
 // We use these to control header font styles
 $header-font-family: $font-family-monospace;
-$header-font-weight: bold;
+//$header-font-weight: bold;
 // $header-font-style: normal;
 // $header-font-color: $jet;
 // $header-line-height: 1.4;

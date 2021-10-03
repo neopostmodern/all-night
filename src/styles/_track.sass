@@ -21,7 +21,7 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     user-select: none
 
   &:hover
-    background-color: #eee
+    background-color: var(--light-background)
 
   &.active
     border: 1px solid black
@@ -39,11 +39,11 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     margin-right: 0.6em
     padding-left: 0.4em
 
-    background-color: lightgray
+    background-color: var(--gray-background)
 
     &:hover
-      background-color: black
-      color: white
+      background-color: var(--font-color)
+      color: var(--light-background)
 
   &:not(.active):not(:hover) .action
     display: none
@@ -83,14 +83,19 @@ $POPULARITY_PROGRESS_WIDTH: 5.8rem
     padding: 0 0.4em
     margin-right: 0.3rem
     background-color: gray
+    color: var(--dark-font-color)
+
+    @media (prefers-color-scheme: dark)
+      background-blend-mode: color
 
     &.live
-      background-color: black
-      color: #eee
+      background-color: var(--font-color)
+      color: var(--light-background)
 
     &.title-date
-      background-color: white
-      border: 1px solid
+      background-color: var(--light-background)
+      color: var(--font-color)
+      border: 1px solid var(--font-color)
 
   &.active
     .podcast.title-date
