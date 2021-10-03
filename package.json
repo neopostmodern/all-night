@@ -1,6 +1,6 @@
 {
   "name": "all-night",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "scripts": {
     "start": "react-scripts start",
     "build": "REACT_APP_VERSION=$(node -pe 'require(\"./package.json\").version') react-scripts build"
