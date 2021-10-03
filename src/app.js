@@ -7,7 +7,6 @@ import moment from 'moment'
 import 'moment-duration-format'
 
 import History from './util/history'
-import AnalyseTrack from './util/track-analyser'
 import Track from './components/track'
 import ProCommands from './components/pro-commands'
 
@@ -172,10 +171,6 @@ class App extends React.Component {
             } else {
               return false
             }
-          })
-          .map((track) => {
-            track.meta = AnalyseTrack(track)
-            return track
           })
 
         let tracks = loadNewer

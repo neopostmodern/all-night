@@ -10,7 +10,7 @@ const Venues = [
     id: '3000-grad',
   },
   {
-    matcher: /fusion/i,
+    matcher: /(fusion)|(plan:? *et +c( +(alpha|beta|gamma))?)/gi,
     name: 'Fusion',
     id: 'fusion',
   },
@@ -54,13 +54,13 @@ export default {
       title = title
         .replace(venue.matcher, '')
         .replace(/festival/i, '')
-        .replace(/201\d/, '')
+        .replace(/20[12]\d/, '')
     }
 
     return [title, analysis]
   },
 
   getName(venueId) {
-    return Venues.find(({ id }) => venueId == id).name
+    return Venues.find(({ id }) => venueId === id).name
   },
 }

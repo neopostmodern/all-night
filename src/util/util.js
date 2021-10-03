@@ -13,10 +13,10 @@ export default {
     }
 
     characters.forEach((character) => {
-      if (string.startsWith(character) && type != 2) {
+      if (string.startsWith(character) && type !== 2) {
         string = string.substring(1)
       }
-      if (string.endsWith(character) && type != 1) {
+      if (string.endsWith(character) && type !== 1) {
         string = string.substring(0, string.length - 1)
       }
     })

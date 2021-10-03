@@ -5,7 +5,7 @@ import moment from 'moment'
 import 'moment-duration-format'
 
 import FestivalAnalyser from '../util/venue-analyser'
-import Utilities from '../util/util'
+import AnalyseTrack from '../util/track-analyser'
 import ColorOnDemand from '../util/colors-on-demand'
 
 import SoundCloudLogo from '../images/sc/logo.png'
@@ -37,9 +37,17 @@ function formatDuration(duration) {
   }
 }
 
-var Track = (props) => {
-  let track = props.track
-  let meta = track.meta
+const Track = ({
+  track,
+  audio,
+  history,
+  isPlaying,
+  onPlay,
+  onResume,
+  onPause,
+  onDoubleClick,
+}) => {
+  let meta = AnalyseTrack(track)
 
   let duration = moment.duration(track.duration)
   let length = formatDuration(duration)
@@ -95,17 +103,17 @@ var Track = (props) => {
   }
 
   let leadingField
-  if (props.isPlaying) {
-    if (props.audio.paused) {
+  if (isPlaying) {
+    if (audio.paused) {
       leadingField = (
-        <div className='action' onClick={props.onResume}>
+        <div className='action' onClick={onResume}>
           play
         </div>
       )
     } else {
       // todo: distinguish buffering/stuck and playing
       leadingField = (
-        <div className='action' onClick={props.onPause}>
+        <div className='action' onClick={onPause}>
           pause
         </div>
       )
@@ -119,13 +127,13 @@ var Track = (props) => {
       >
         {date.format('D-MMM')}
       </div>,
-      <div key={track.id + '-action'} className='action' onClick={props.onPlay}>
+      <div key={track.id + '-action'} className='action' onClick={onPlay}>
         play
       </div>,
     ]
   }
 
-  let classes = ClassNames('track', { active: props.isPlaying })
+  let classes = ClassNames('track', { active: isPlaying })
 
   let popularityOrProgress = (
     <div className='popularity' title={track.playback_count + ' plays'}>
@@ -137,15 +145,15 @@ var Track = (props) => {
       />
     </div>
   )
-  if (props.isPlaying) {
+  if (isPlaying) {
     let formattedProgress = formatDuration(
-      moment.duration(props.audio.currentTime * 1000),
+      moment.duration(audio.currentTime * 1000),
     )
     popularityOrProgress = <div className='progress'>{formattedProgress} /</div>
   }
 
   let userRelation
-  if (props.history === 1) {
+  if (history === 1) {
     userRelation = (
       <i
         className='material-icons'
@@ -155,7 +163,7 @@ var Track = (props) => {
         done
       </i>
     )
-  } else if (props.history === 2) {
+  } else if (history === 2) {
     userRelation = (
       <i
         className='material-icons'
