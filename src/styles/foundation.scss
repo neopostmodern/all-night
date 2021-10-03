@@ -2,21 +2,21 @@
 @charset "UTF-8";
 
 // This includes all of the foundation global elements that are needed to work with any of the other files.
-@import "settings";
+@import 'settings';
 
 // Foundation Components
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/global";
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/grid";
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/visibility";
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/block-grid";
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/type";
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/global';
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/grid';
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/visibility';
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/block-grid';
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/type';
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/buttons";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/forms";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/custom-forms";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/button-groups";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/dropdown-buttons";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/split-buttons";
-@import "../../node_modules/zurb-foundation-5/scss/foundation/components/flex-video";
+@import '../../node_modules/zurb-foundation-5/scss/foundation/components/flex-video';
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/section";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/top-bar";
 //@import "../../node_modules/zurb-foundation-5/scss/foundation/components/orbit";

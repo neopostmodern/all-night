@@ -1,30 +1,30 @@
 export default class History {
   constructor(identifier) {
-    this._identifier = identifier;
-    this._load();
+    this._identifier = identifier
+    this._load()
   }
 
   _load() {
-    let history = JSON.parse(localStorage.getItem(this._identifier));
+    let history = JSON.parse(localStorage.getItem(this._identifier))
     if (!history) {
-      history = {};
+      history = {}
     }
 
-    this._history = history;
+    this._history = history
   }
 
   _save() {
-    localStorage.setItem(this._identifier, JSON.stringify(this._history));
+    localStorage.setItem(this._identifier, JSON.stringify(this._history))
   }
 
   getItem(key) {
-    return this._history[key];
+    return this._history[key]
   }
 
   setItem(key, value) {
-    console.log("Setting", key, value);
-    this._history[key] = value;
-    this._save();
+    console.log('Setting', key, value)
+    this._history[key] = value
+    this._save()
   }
 
   /**
@@ -34,17 +34,20 @@ export default class History {
    * @param {number} value The value to write, if applicable
    */
   upgradeItem(key, value) {
-    console.log("Updated proposed", key, value);
+    console.log('Updated proposed', key, value)
     if (isNaN(value)) {
-      console.warn("Calling History.upgradeItem with non-numeric value: ", value);
+      console.warn(
+        'Calling History.upgradeItem with non-numeric value: ',
+        value,
+      )
     }
 
-    let currentValue = this.getItem(key);
+    let currentValue = this.getItem(key)
     // generously override equal values, so 0 replaces null etc.
     // as numbers can't be equal without identity, there should be no risk
-    if (isNaN(currentValue) ||  value >= currentValue) {
-      console.log("Updated accepted", key, value);
-      this.setItem(key, value);
+    if (isNaN(currentValue) || value >= currentValue) {
+      console.log('Updated accepted', key, value)
+      this.setItem(key, value)
     }
   }
 }

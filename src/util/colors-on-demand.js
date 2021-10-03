@@ -16,17 +16,17 @@ const COLORS = [
   '#ffe082',
   '#80cbc4',
   '#ce93d8',
-  '#ffab91'
-];
+  '#ffab91',
+]
 
-var index = 0;
-var map = {};
+var index = 0
+var map = {}
 
 export default function GetColorFor(identifier) {
-  if (! map[identifier]) {
-    map[identifier] = COLORS[index % COLORS.length];
-    index += 1;
+  if (!map[identifier]) {
+    map[identifier] = COLORS[index % COLORS.length]
+    index += 1
   }
 
-  return map[identifier];
+  return map[identifier]
 }

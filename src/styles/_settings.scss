@@ -55,7 +55,7 @@
 // $rem-base: 16px;
 
 // Allows the use of rem-calc() or lower-bound() in your settings
-@import "../../node_modules/zurb-foundation-5/scss/foundation/functions";
+@import '../../node_modules/zurb-foundation-5/scss/foundation/functions';
 
 // The default font-size is set to 100% of the browser style sheet (usually 16px)
 // for compatibility with browser-based text zoom or user-set defaults.
@@ -553,7 +553,6 @@ $anchor-font-color-hover: inherit;
 
 // Default radius for dropdown.
 // $f-dropdown-radius: $global-radius;
-
 
 // 09. Dropdown Buttons
 // - - - - - - - - - - - - - - - - - - - - - - - - -
